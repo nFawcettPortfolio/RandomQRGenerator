@@ -1,13 +1,21 @@
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
+
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.control.Button;
+import javafx.scene.image.WritableImage;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class QRGenerator extends Application {
@@ -30,9 +38,37 @@ public class QRGenerator extends Application {
                 newQR();
             }
         });
-        generateButton.setLayoutX(235);
+        
+        // SAVE QR CODE
+        Button saveButton = new Button("Save");
+        saveButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                    FileChooser fileChooser = new FileChooser();
+                    
+                    FileChooser.ExtensionFilter extFilter = 
+                            new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
+                    fileChooser.getExtensionFilters().add(extFilter);
+                   
+                    File file = fileChooser.showSaveDialog(primaryStage);
+                     
+                    if(file != null){
+                        try {
+                            WritableImage writableImage = new WritableImage(512, 512);
+                            qrGroup.snapshot(null, writableImage);
+                            RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
+                            ImageIO.write(renderedImage, "png", file);
+                        } catch (IOException ex) {
+                            
+                    }
+                }
+            }
+        });
+        generateButton.setLayoutX(250);
         generateButton.setLayoutY(540);
-        group.getChildren().add(generateButton);
+        saveButton.setLayoutX(200);
+        saveButton.setLayoutY(540);
+        group.getChildren().addAll(saveButton, generateButton);
 
         Scene scene = new Scene(group, 512, 572, Color.WHITE);
         primaryStage.setTitle("QR Code");
